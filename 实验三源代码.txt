@@ -1,0 +1,58 @@
+package text1;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+public class text2 {
+	static List<String> list=new ArrayList<>();//创建一个列表用来装按行读取到的内容
+	public static void readFileByLines(String filename) throws IOException {//按行读取文件
+	File file = new File(filename);
+	BufferedReader reader=null;
+	InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), "GBK");//用其他编码会导致乱码，要改变编码必须先用InPutStreamReader方法
+		reader = new BufferedReader(inputStreamReader);
+		String tempString = reader.readLine();//用reader.readLine()读出一行，并把独处的内容传给 tempString 字符串
+		while((tempString = reader.readLine())!= null) {
+		list.add(tempString);//把 tempString 里的内容放到list中
+			}
+		inputStreamReader.close();
+		reader.close();//关闭接口
+	}
+	public static void main(String[] args) throws IOException {
+		readFileByLines(args[0]);//按行读取文档到list,将原有的输入文件名修改为参数args[0]
+		String[][] string = new String[list.size()][];//初始化一个二维数组
+		for(int i = 0;i<list.size();i++) {          //遍历这个二维数组
+			string[i] = list.get(i).split("\\s+");//正则表达式去空字符，\\s+表示多次匹配使用
+		}
+		File file = new File(args[1]);//将原有的输出文件名修改为参数args[1]
+		FileOutputStream out = new FileOutputStream(file);
+		OutputStreamWriter wr =new OutputStreamWriter(out);
+		String loc = string[0][0];//初始值为浙江省
+		if(args.length==2) {//判断输入参数的数量，若为2，则输出全部省份信息
+			wr.write(loc+"\r\n");//先写入浙江加换行到文档
+			for(int j =0 ;j < string.length;j++) {//0-127;因为已知每行3个元素：省份，城市，数量就不用再遍历
+	if(string[j][0].equals(loc)){//用equals来判断第一列的省份是否与loc初始值“浙江省”匹配
+	wr.write(string[j][1]+"            "+string[j][2]+"\r\n");//匹配的话就输出第二列和第三列			}
+			else{
+			wr.write("\r\n"+string[j][0]+"\r\n");  //不匹配的话就换行，输出新的省份
+			loc = string[j][0];    //将loc的值更新为下一个省份，重复while循环中的操作            
+		}
+		}
+		}
+		else if(args.length==3) {  //若输入的参数的数量为3，即已经输入了省份，则进行匹配
+			for(int j=0;j<string.length;j++) {
+				if(string[j][0].equals(args[2])) {
+					wr.write(string[j][1]+"       "+string[j][2]+"\r\n");
+				}
+				else {
+					continue;//不匹配则继续输入其他的省份
+				}
+			}
+		}
+		wr.close();
+	}
+}
